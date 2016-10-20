@@ -17,7 +17,7 @@ import com.fangbian.fangbianxie.view.PictureAndTextEditorView;
  */
 public class EditorFragment extends BaseFragment implements View.OnClickListener {
 
-    private TextView tv_addphoto;
+    //private TextView tv_addphoto;
     //android内核浏览器
     private RichEditor mEditor;
     private TextView mPreview;
@@ -30,8 +30,8 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
     @Override
     protected void initView(View view) {
 
-        tv_addphoto = (TextView) view.findViewById(R.id.tv_addphoto);
-        tv_addphoto.setOnClickListener(this);
+        /*tv_addphoto = (TextView) view.findViewById(R.id.tv_addphoto);
+        tv_addphoto.setOnClickListener(this);*/
 
         mEditor = (RichEditor) view.findViewById(R.id.editor);
         mEditor.setEditorHeight(200);
@@ -52,14 +52,14 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
         view.findViewById(R.id.action_undo).setOnClickListener(this);
         view.findViewById(R.id.action_redo).setOnClickListener(this);
         view.findViewById(R.id.action_bold).setOnClickListener(this);
-        view.findViewById(R.id.action_italic).setOnClickListener(this);
-        view.findViewById(R.id.action_strikethrough).setOnClickListener(this);
+        /*view.findViewById(R.id.action_italic).setOnClickListener(this);*/
+        /*view.findViewById(R.id.action_strikethrough).setOnClickListener(this);*/
         view.findViewById(R.id.action_underline).setOnClickListener(this);
         view.findViewById(R.id.action_heading1).setOnClickListener(this);
         view.findViewById(R.id.action_heading2).setOnClickListener(this);
         view.findViewById(R.id.action_heading3).setOnClickListener(this);
         view.findViewById(R.id.action_heading4).setOnClickListener(this);
-        view.findViewById(R.id.action_heading5).setOnClickListener(this);
+        /*view.findViewById(R.id.action_heading5).setOnClickListener(this);*/
         view.findViewById(R.id.action_blockquote).setOnClickListener(this);
         view.findViewById(R.id.action_insert_numbers).setOnClickListener(this);
         //插入图片按钮设置点击事件
@@ -78,13 +78,13 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
 
         switch (view.getId()) {
 
-            //获取系统相册
+            /*//获取系统相册
             case R.id.tv_addphoto:
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/jpeg");
                 startActivityForResult(intent, 888);
-                break;
+                break;*/
             case R.id.action_undo:
                 mEditor.undo();
                 break;
@@ -94,11 +94,11 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
             case R.id.action_bold:
                 mEditor.setBold();
                 break;
-            case R.id.action_italic:
+           /* case R.id.action_italic:
                 mEditor.setItalic();
-                break;
-            case R.id.action_strikethrough:
-                break;
+                break;*/
+            /*case R.id.action_strikethrough:
+                break;*/
             case R.id.action_underline:
                 mEditor.setUnderline();
                 break;
@@ -114,9 +114,9 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
             case R.id.action_heading4:
                 mEditor.setHeading(4);
                 break;
-            case R.id.action_heading5:
+           /* case R.id.action_heading5:
                 mEditor.setHeading(5);
-                break;
+                break;*/
             case R.id.action_blockquote:
                 mEditor.setBlockquote();
                 break;
@@ -124,13 +124,13 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
                 mEditor.setNumbers();
                 break;
             case R.id.action_insert_image:
-                //此处需要处理插入本地图片(目前是插入网络图片)
+                //此处需要处理插入本地图片(目前是插入网络图片),(处理方法为向服务端传送图片，然后服务端返回图片网络路径)
                 mEditor.insertImage("http://www.1honeywan.com/dachshund/image/7.21/7.21_3_thumb.JPG",
                         "dachshund");
                 break;
             case R.id.action_insert_link:
                 //插入超链接
-                mEditor.insertLink("https://github.com/wasabeef", "wasabeef");
+                mEditor.insertLink("https://github.com/wasabeef", "我是超链接");
                 break;
         }
     }
