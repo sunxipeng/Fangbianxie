@@ -28,6 +28,21 @@ document.addEventListener("selectionchange", function() { RE.backuprange(); });
 
 // Initializations
 RE.callback = function() {
+   var ranges = [
+         '\ud83c[\udf00-\udfff]',
+         '\ud83d[\udc00-\ude4f]',
+         '\ud83d[\ude80-\udeff]'
+     ];
+
+    var oldlen=RE.editor.innerHTML;
+    var newlen=RE.editor.innerHTML.replace(new RegExp(ranges.join('|'), 'g'), '');
+
+    if(oldlen!=newlen){
+        RE.backuprange();
+        RE.editor.innerHTML =  RE.editor.innerHTML.replace(new RegExp(ranges.join('|'), 'g'), '');
+        RE.restorerange();
+    }
+    //RE.editor.focus();
     window.location.href = "re-callback://" + encodeURI(RE.getHtml());
 }
 
@@ -36,7 +51,14 @@ RE.setHtml = function(contents) {
 }
 
 RE.getHtml = function() {
-    return RE.editor.innerHTML;
+
+    var ranges = [
+        '\ud83c[\udf00-\udfff]',
+        '\ud83d[\udc00-\ude4f]',
+        '\ud83d[\ude80-\udeff]'
+    ];
+
+    return RE.editor.innerHTML.replace(new RegExp(ranges.join('|'), 'g'), '');
 }
 
 RE.getText = function() {
@@ -119,11 +141,11 @@ RE.setUnderline = function() {
 }
 
 RE.setBullets = function() {
-    document.execCommand('insertUnorderedList', false, null);
+    document.execCommand('InsertUnorderedList', false, null);
 }
 
 RE.setNumbers = function() {
-    document.execCommand('insertOrderedList', false, null);
+    document.execCommand('InsertOrderedList', false, null);
 }
 
 RE.setTextColor = function(color) {
@@ -144,8 +166,11 @@ RE.setFontSize = function(fontSize){
     document.execCommand("fontSize", false, fontSize);
 }
 
-RE.setHeading = function(heading) {
-    document.execCommand('formatBlock', false, '<h'+heading+'>');
+RE.setHeading = function(heading,b) {
+    if(b)
+        document.execCommand('formatBlock', false, '<h'+heading+'>');
+    else
+        document.execCommand('formatBlock', false, '<p>');
 }
 
 RE.setIndent = function() {
@@ -168,12 +193,22 @@ RE.setJustifyRight = function() {
     document.execCommand('justifyRight', false, null);
 }
 
-RE.setBlockquote = function() {
-    document.execCommand('formatBlock', false, '<blockquote>');
+RE.setBlockquote = function(b) {
+    if(b)
+        document.execCommand('formatBlock', false, '<blockquote>');
+    else
+        document.execCommand('formatBlock', false, '<p>');
 }
 
+//插入图片
 RE.insertImage = function(url, alt) {
-    var html = '<img src="' + url + '" alt="' + alt + '" />';
+    var html = '<img  src="' + url + '" alt="' + alt + '" /><p align=center style="color:#aaaaaa">来自陌筹君App的图片</p><hr align=center width=200 color=#aaaaaa size=1 /><br/><br/>';
+    RE.insertHTML(html);
+}
+
+//插入分割线
+RE.insertHr = function() {
+    var html = '<hr color=#e2e2e2 size=1 /><br/>';
     RE.insertHTML(html);
 }
 
@@ -232,6 +267,7 @@ RE.restorerange = function(){
 
 RE.enabledEditingItems = function(e) {
     var items = [];
+
     if (document.queryCommandState('bold')) {
         items.push('bold');
     }
@@ -276,7 +312,18 @@ RE.enabledEditingItems = function(e) {
         items.push(formatBlock);
     }
 
-    window.location.href = "re-state://" + encodeURI(items.join(','));
+    if(e.which==13){
+        items.push("enter");
+    }
+
+
+    var ranges = [
+        '\ud83c[\udf00-\udfff]',
+        '\ud83d[\udc00-\ude4f]',
+        '\ud83d[\ude80-\udeff]'
+    ];
+
+    window.location.href = "re-state://" + encodeURI(items.join(','))+"@_@"+encodeURI(RE.getHtml());
 }
 
 RE.focus = function() {
@@ -300,9 +347,10 @@ RE.removeFormat = function() {
 // Event Listeners
 RE.editor.addEventListener("input", RE.callback);
 RE.editor.addEventListener("keyup", function(e) {
-    var KEY_LEFT = 37, KEY_RIGHT = 39;
-    if (e.which == KEY_LEFT || e.which == KEY_RIGHT) {
-        RE.enabledEditingItems(e);
-    }
+    //RE.enabledEditingItems(e);
+   var KEY_LEFT = 37, KEY_RIGHT = 39;
+   if (e.which == KEY_LEFT || e.which == KEY_RIGHT || e.which ==8 || e.which == 13) {
+       RE.enabledEditingItems(e);
+   }
 });
 RE.editor.addEventListener("click", RE.enabledEditingItems);

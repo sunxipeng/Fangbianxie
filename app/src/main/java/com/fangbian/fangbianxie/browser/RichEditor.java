@@ -22,10 +22,23 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by sunxipeng on 2016/10/16.
- * android中内核浏览器
+ * Copyright (C) 2015 Wasabeef
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 public class RichEditor extends WebView {
+
     public enum Type {
         BOLD,
         ITALIC,
@@ -33,18 +46,13 @@ public class RichEditor extends WebView {
         SUPERSCRIPT,
         STRIKETHROUGH,
         UNDERLINE,
+        BLOCKQUOTE,
         H1,
         H2,
         H3,
         H4,
         H5,
-        H6,
-        ORDEREDLIST,
-        UNORDEREDLIST,
-        JUSTIFYCENTER,
-        JUSTIFYFULL,
-        JUSTUFYLEFT,
-        JUSTIFYRIGHT
+        H6
     }
 
     public interface OnTextChangeListener {
@@ -70,6 +78,7 @@ public class RichEditor extends WebView {
     private OnTextChangeListener mTextChangeListener;
     private OnDecorationStateListener mDecorationStateListener;
     private AfterInitialLoadListener mLoadListener;
+    private OnScrollChangedCallback mOnScrollChangedCallback;
 
     public RichEditor(Context context) {
         this(context, null);
@@ -88,8 +97,6 @@ public class RichEditor extends WebView {
         getSettings().setJavaScriptEnabled(true);
         setWebChromeClient(new WebChromeClient());
         setWebViewClient(createWebviewClient());
-
-        //浏览器加载html
         loadUrl(SETUP_HTML);
 
         applyAttributes(context, attrs);
@@ -116,10 +123,64 @@ public class RichEditor extends WebView {
         if (mTextChangeListener != null) {
             mTextChangeListener.onTextChange(mContents);
         }
+        return;
     }
 
+
+    /**
+     * WebView的滚动事件
+     *
+     * @param l
+     * @param t
+     * @param oldl
+     * @param oldt
+     */
+    @Override
+    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+        super.onScrollChanged(l, t, oldl, oldt);
+
+        if (mOnScrollChangedCallback != null) {
+            mOnScrollChangedCallback.onScroll(l - oldl, t - oldt);
+        }
+
+    }
+
+    public OnScrollChangedCallback getOnScrollChangedCallback() {
+        return mOnScrollChangedCallback;
+    }
+
+    public void setOnScrollChangedCallback(
+            final OnScrollChangedCallback onScrollChangedCallback) {
+        mOnScrollChangedCallback = onScrollChangedCallback;
+    }
+
+
+    /**
+     * Impliment in the activity/fragment/view that you want to listen to the webview
+     */
+    public interface OnScrollChangedCallback {
+        void onScroll(int dx, int dy);
+    }
+
+
     private void stateCheck(String text) {
-        String state = text.replaceFirst(STATE_SCHEME, "").toUpperCase(Locale.ENGLISH);
+
+        if (!text.contains("@_@")) {
+            String state = text.replaceFirst(STATE_SCHEME, "").toUpperCase(Locale.ENGLISH);
+            List<Type> types = new ArrayList<>();
+            for (Type type : Type.values()) {
+                if (TextUtils.indexOf(state, type.name()) != -1) {
+                    types.add(type);
+                }
+            }
+
+            if (mDecorationStateListener != null) {
+                mDecorationStateListener.onStateChangeListener(state, types);
+            }
+            return;
+        }
+
+        String state = text.replaceFirst(STATE_SCHEME, "").split("@_@")[0].toUpperCase(Locale.ENGLISH);
         List<Type> types = new ArrayList<>();
         for (Type type : Type.values()) {
             if (TextUtils.indexOf(state, type.name()) != -1) {
@@ -129,6 +190,13 @@ public class RichEditor extends WebView {
 
         if (mDecorationStateListener != null) {
             mDecorationStateListener.onStateChangeListener(state, types);
+        }
+
+        if (text.replaceFirst(STATE_SCHEME, "").split("@_@").length > 1) {
+            mContents = text.replaceFirst(STATE_SCHEME, "").split("@_@")[1];
+            if (mTextChangeListener != null) {
+                mTextChangeListener.onTextChange(mContents);
+            }
         }
     }
 
@@ -167,6 +235,11 @@ public class RichEditor extends WebView {
         ta.recycle();
     }
 
+    /**
+     * setText
+     *
+     * @param contents
+     */
     public void setHtml(String contents) {
         if (contents == null) {
             contents = "";
@@ -179,6 +252,11 @@ public class RichEditor extends WebView {
         mContents = contents;
     }
 
+    /**
+     * getText
+     *
+     * @return
+     */
     public String getHtml() {
         return mContents;
     }
@@ -270,10 +348,12 @@ public class RichEditor extends WebView {
     }
 
     public void setBold() {
+        exec("javascript:RE.prepareInsert();");
         exec("javascript:RE.setBold();");
     }
 
     public void setItalic() {
+        exec("javascript:RE.prepareInsert();");
         exec("javascript:RE.setItalic();");
     }
 
@@ -318,8 +398,17 @@ public class RichEditor extends WebView {
         exec("javascript:RE.removeFormat();");
     }
 
-    public void setHeading(int heading) {
-        exec("javascript:RE.setHeading('" + heading + "');");
+    public void setHeading(int heading, boolean b, boolean isItalic, boolean isBold, boolean isStrikeThrough) {
+        exec("javascript:RE.prepareInsert();");
+//        if (!b) {
+//            if (isItalic)
+//                exec("javascript:RE.setItalic();");
+//            if (isBold)
+//                exec("javascript:RE.setBold();");
+//            if (isStrikeThrough)
+//                exec("javascript:RE.setStrikeThrough();");
+//        }
+        exec("javascript:RE.setHeading('" + heading + "'," + b + ");");
     }
 
     public void setIndent() {
@@ -342,8 +431,17 @@ public class RichEditor extends WebView {
         exec("javascript:RE.setJustifyRight();");
     }
 
-    public void setBlockquote() {
-        exec("javascript:RE.setBlockquote();");
+    public void setBlockquote(boolean b, boolean isItalic, boolean isBold, boolean isStrikeThrough) {
+        exec("javascript:RE.prepareInsert();");
+//        if (!b) {
+//            if (isItalic)
+//                exec("javascript:RE.setItalic();");
+//            if (isBold)
+//                exec("javascript:RE.setBold();");
+//            if (isStrikeThrough)
+//                exec("javascript:RE.setStrikeThrough();");
+//        }
+        exec("javascript:RE.setBlockquote(" + b + ");");
     }
 
     public void setBullets() {
@@ -358,6 +456,12 @@ public class RichEditor extends WebView {
         exec("javascript:RE.prepareInsert();");
         exec("javascript:RE.insertImage('" + url + "', '" + alt + "');");
     }
+
+    public void insertHr() {
+        exec("javascript:RE.prepareInsert();");
+        exec("javascript:RE.insertHr();");
+    }
+
 
     public void insertLink(String href, String title) {
         exec("javascript:RE.prepareInsert();");
