@@ -63,12 +63,8 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
     protected void initView(View view) {
         imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         mEditor = (RichEditor) view.findViewById(R.id.editor);
-
         mEditor.setEditorFontSize(20);
-
         test();
-
-
         //设置编辑字体颜色
         mEditor.setEditorFontColor(Color.BLACK);
         mEditor.setPadding(0, 10, 10, 10);
@@ -119,6 +115,15 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
                     //imm.hideSoftInputFromWindow(mEditor.getWindowToken(), 0); //强制隐藏键盘
                     rl_layout_editor.setVisibility(View.GONE);
                 }
+            }
+        });
+
+
+        mEditor.setOnTextChangeListener(new RichEditor.OnTextChangeListener() {
+            @Override
+            public void onTextChange(String text) {
+
+                //打印出输入的东西转换为html文件
             }
         });
 
