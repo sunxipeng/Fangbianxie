@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -24,6 +25,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private TextView tv_editor;
     private TextView tv_mine;
     private BaseFragment mOldFagment;
+    public LinearLayout footview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private void initview() {
 
+        footview = (LinearLayout) findViewById(R.id.footview);
         tv_message = (TextView) findViewById(R.id.tv_message);
         tv_editor = (TextView) findViewById(R.id.tv_editor);
         tv_mine = (TextView) findViewById(R.id.tv_mine);

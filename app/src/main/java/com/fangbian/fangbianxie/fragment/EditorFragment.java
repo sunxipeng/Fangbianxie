@@ -29,7 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-
+import com.fangbian.fangbianxie.MainActivity;
 import com.fangbian.fangbianxie.R;
 import com.fangbian.fangbianxie.browser.RichEditor;
 
@@ -49,6 +49,7 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
     private ImageButton ib_Bold, ib_Italic, ib_StrikeThough, ib_BlockQuote, ib_H1, ib_H2, ib_H3, ib_H4;
     private boolean flag1, flag2, flag3, flag4, flag5, flag6, flag7, flag8;
 
+
     @Override
     protected int getLayoutId() {
         return R.layout.fragment_editor;
@@ -62,19 +63,19 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
     protected void initView(View view) {
         imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         mEditor = (RichEditor) view.findViewById(R.id.editor);
-        //mEditor.setEditorHeight(200);
-        mEditor.setEditorFontSize(22);
 
+        mEditor.setEditorFontSize(20);
+
+        test();
 
 
         //设置编辑字体颜色
-        mEditor.setEditorFontColor(Color.RED);
-        mEditor.setPadding(10, 10, 10, 10);
+        mEditor.setEditorFontColor(Color.BLACK);
+        mEditor.setPadding(0, 10, 10, 10);
         mEditor.setPlaceholder("Insert text here...");
 
-        LinearLayout rootview = (LinearLayout) view.findViewById(R.id.rootview);
+
         rl_layout_editor = (RelativeLayout) view.findViewById(R.id.rl_layout_editor);
-        //controlKeyboardLayout(rootview,rl_layout_editor);
         ll_layout_add = (LinearLayout) view.findViewById(R.id.ll_layout_add);
         ll_layout_font = (LinearLayout) view.findViewById(R.id.ll_layout_font);
 
@@ -676,6 +677,35 @@ public class EditorFragment extends BaseFragment implements View.OnClickListener
                 } else {
                     //键盘隐藏
                     root.scrollTo(0, 0);
+                }
+            }
+        });
+    }
+
+    View mRoot;
+    public void test(){
+        mRoot = getActivity().getWindow().getDecorView();
+        mRoot.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect rect = new Rect();
+                mRoot.getWindowVisibleDisplayFrame(rect);
+                int rootInvisibleHeight = mRoot.getRootView().getHeight()-rect.bottom;
+                if(rootInvisibleHeight>100){
+                    ((MainActivity)getActivity()).footview.setVisibility(View.GONE);
+                    //显示
+                   // footerView.setVisibility(View.GONE);
+                   /* int[] location = new int[2];
+                    //获取scrollToView在窗体的坐标
+                    test1.getLocationInWindow(location);
+                    //计算root滚动高度，使scrollToView在可见区域的底部
+                    int srollHeight = (location[1] + test1.getHeight()) - rect.bottom;
+                    mRoot.scrollTo(0, srollHeight);*/
+                }else{
+                    ((MainActivity)getActivity()).footview.setVisibility(View.VISIBLE);
+                    //mRoot.scrollTo(0,0);
+                    //隐藏
+                    //footerView.setVisibility(View.VISIBLE);
                 }
             }
         });
